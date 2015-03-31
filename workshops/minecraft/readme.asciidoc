@@ -86,6 +86,7 @@ Your main file should now look like <<Main_File_After_Register>>.
 ----
 package org.devoxx4kids.forge.mods;
 
+import.net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -131,13 +132,13 @@ public class DragonSpawner {
 	
 	@SubscribeEvent
 	public void spawnDragon(PlaceEvent event) {
-		if (event.block != Blocks.dragon_egg) {
+		if (event.placedBlock != Blocks.dragon_egg) {
 			return;
 		}
 		
-		event.world.setBlock(event.x, event.y, event.z, Blocks.air);
+		event.world.setBlock(event.pos.getX(), event.pos.getY(), event.pos.getZ(), Blocks.air);
 		EntityDragon dragon = new EntityDragon(event.world);
-		dragon.setLocationAndAngles(event.x, event.y, event.z, 0, 0);
+		dragon.setLocationAndAngles(event.pos.getX(), event.pos.getY(), event.pos.getZ(), 0, 0);
 		event.world.spawnEntityInWorld(dragon);
 	}
 
@@ -367,6 +368,7 @@ package org.devoxx4kids.forge.mods;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -386,17 +388,17 @@ public class RainWater {
 		}
 
 		for (int i = y; i < 256; i++) {
-			if (world.getBlock(x, i, z) != Blocks.air) {
+			if (world.getBlockState(new BlockPos(x, i, z)) != Blocks.air) {
 				return;
 			}
 		}
 		
-		if (!world.getBlock(x, y - 1, z).isBlockNormalCube()) {
+		if (!world.getBlockState(new BlockPos(x, y - 1, z)).getBlock().isNormalCube()) {
 			return;
 		}
 
 		if (!world.isRemote) {
-			world.setBlock(x, y, z, Blocks.water, 5, 1);
+			world.setBlockState(new BlockPos(x, y, z), Blocks.water.getBlockState().getBaseState());
 		}
 	}
 
@@ -418,7 +420,7 @@ MinecraftForge.EVENT_BUS.register(new RainWater());
 **Gameplay:**
 
 . Use the command "/weather rain" to make the weather rainy
-. Start moving, and water should be placed wherever you go, but it will disappear quickly
+. Start moving, and water should be placed wherever you go, and it will stay even after the rain stops
 
 == Sharing Your Mods
 
